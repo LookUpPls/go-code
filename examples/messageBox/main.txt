@@ -1,0 +1,101 @@
+package main
+
+import (
+	"fmt"
+	"math/rand"
+	"strconv"
+	"time"
+)
+
+func main() {
+
+	/**
+	 * 已知一个消息流会不断吐出整数1-N，
+	 * 但不一定按照顺序依次吐出
+	 * 如果上次打印的序号为i，那么当i+1出现时
+	 * 请打i+1及其之后接受过的并且连续的所有数
+	 * 直到1-N全部接收并打印完
+	 * 请设计这种接收并打印的结构
+	 */
+	box := NewMessageBox()
+	// 1....
+	rand.Seed(time.Now().UnixNano())
+	// 生成连续的数字序列
+	n := 100 // 比如生成1到10的数字
+	numbers := make([]int, n)
+	for i := range numbers {
+		numbers[i] = i + 1
+	}
+	// 洗牌
+	rand.Shuffle(n, func(i, j int) {
+		//if rand.Int() > 1000 {
+		numbers[i], numbers[j] = numbers[j], numbers[i]
+		//}
+	})
+
+	for _, number := range numbers {
+		box.receive(number, strconv.Itoa(number))
+	}
+}
+
+type Node struct {
+	info string
+	next *Node
+}
+
+type MessageBox struct {
+	headMap   map[int]*Node
+	tailMap   map[int]*Node
+	waitPoint int
+}
+
+func NewMessageBox() *MessageBox {
+	ans := &MessageBox{}
+	ans.headMap = make(map[int]*Node)
+	ans.tailMap = make(map[int]*Node)
+	ans.waitPoint = 1
+	return ans
+}
+
+// 消息的编号，info消息的内容, 消息一定从1开始
+func (this *MessageBox) receive(num int, info string) {
+	if num < 1 {
+		return
+	}
+	cur := &Node{info: info}
+	// num~num
+	this.headMap[num] = cur
+	this.tailMap[num] = cur
+	// 建立了num~num这个连续区间的头和尾
+	// 查询有没有某个连续区间以num-1结尾
+	if _, ok := this.tailMap[num-1]; ok {
+		this.tailMap[num-1].next = cur
+		delete(this.tailMap, num-1)
+		delete(this.headMap, num)
+	}
+	// 查询有没有某个连续区间以num+1开头的
+	if _, ok := this.headMap[num+1]; ok {
+		cur.next = this.headMap[num+1]
+		delete(this.tailMap, num)
+		delete(this.headMap, num+1)
+	}
+	fmt.Printf(" %d", num)
+	//fmt.Printf("head %v\n", this.headMap)
+	//fmt.Printf("tail %v\n", this.tailMap)
+	if num == this.waitPoint {
+		this.print2()
+	}
+}
+
+func (this *MessageBox) print2() {
+	fmt.Print("\nprint ")
+	node := this.headMap[this.waitPoint]
+	delete(this.headMap, this.waitPoint)
+	for node != nil {
+		fmt.Print(node.info + " ")
+		node = node.next
+		this.waitPoint++
+	}
+	delete(this.tailMap, this.waitPoint-1)
+	fmt.Println()
+}

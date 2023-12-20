@@ -1,2 +1,3 @@
 # Project exclude paths
 /examples/zip/zip/
+.idea

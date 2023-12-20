@@ -8,62 +8,7 @@ import (
 	"time"
 )
 
-func TestBetterPrin111tFiles1(t *testing.T) {
-
-	numbers := []int{1, 5, 3, 4, 2, 8, 7, 6}
-
-	// 输出结果
-	fmt.Println(numbers)
-
-	s := succession{}
-	s.init(5)
-	for _, number := range numbers {
-		fmt.Printf("put %d\n", number)
-		s.put(number, int64(number))
-	}
-
-	fmt.Printf("%d  %d \n", s.bp, s.len)
-	fmt.Printf("%v", s.body.buf)
-
-	assert.Equal(t, 0, s.len)
-	assert.Equal(t, true, s.body.isEmpty)
-}
-func TestBetterPrin111tFi111111les1(t *testing.T) {
-
-	numbers := []int{94, 78, 6, 67, 80, 47, 27, 32, 3, 69, 88, 75, 46, 8, 56, 13, 17, 79, 85, 50, 97, 30, 21, 83, 89, 65, 41, 2, 73, 22, 37, 91, 15, 40, 54, 23, 48, 42, 60, 90, 16, 93, 64, 11, 58, 35, 61, 38, 5, 25, 57, 82, 18, 28, 96, 34, 4, 9, 43, 77, 14, 68, 12, 92, 39, 24, 81, 63, 99, 49, 29, 87, 98, 7, 26, 71, 19, 20, 36, 72, 66, 70, 51, 76, 53, 74, 44, 59, 52, 1, 95, 55, 86, 31, 100, 33, 84, 45, 62, 10}
-
-	// 输出结果
-	fmt.Println(numbers)
-
-	s := succession{}
-	s.init(5)
-	for _, number := range numbers {
-		fmt.Printf("%d ", number)
-		s.put(number, int64(number))
-	}
-	fmt.Printf("\n%d  %d", s.bp, s.len)
-	fmt.Printf("%v", s.body.buf)
-	assert.Equal(t, 0, s.len)
-	//assert.Equal(t, len(numbers)-1, s.bp)
-	assert.Equal(t, true, s.body.isEmpty)
-}
-
-func TestBetterPrintFiles1(t *testing.T) {
-	// 设置随机数种子
-	rand.Seed(time.Now().UnixNano())
-
-	// 生成连续的数字序列
-	n := 10000 // 比如生成1到10的数字
-	numbers := make([]int, n)
-	for i := range numbers {
-		numbers[i] = i + 1
-	}
-
-	// 洗牌
-	rand.Shuffle(len(numbers), func(i, j int) {
-		numbers[i], numbers[j] = numbers[j], numbers[i]
-	})
-
+func testProcess(t *testing.T, numbers []int) {
 	// 输出结果
 	fmt.Println(numbers)
 
@@ -78,7 +23,34 @@ func TestBetterPrintFiles1(t *testing.T) {
 	assert.Equal(t, 0, s.len)
 	//assert.Equal(t, len(numbers)-1, s.bp)
 	assert.Equal(t, true, s.body.isEmpty)
+}
+func TestBetterPrin11asf1tFiles1(t *testing.T) {
+	numbers := []int{2, 3, 1, 4, 5, 9, 6, 8, 10, 7, 11}
+	testProcess(t, numbers)
+}
+func TestBetterPrin111tFiles1(t *testing.T) {
+	numbers := []int{1, 5, 3, 4, 2, 8, 7, 6}
+	testProcess(t, numbers)
+}
+func TestBetterPrin111tFi111111les1(t *testing.T) {
+	numbers := []int{94, 78, 6, 67, 80, 47, 27, 32, 3, 69, 88, 75, 46, 8, 56, 13, 17, 79, 85, 50, 97, 30, 21, 83, 89, 65, 41, 2, 73, 22, 37, 91, 15, 40, 54, 23, 48, 42, 60, 90, 16, 93, 64, 11, 58, 35, 61, 38, 5, 25, 57, 82, 18, 28, 96, 34, 4, 9, 43, 77, 14, 68, 12, 92, 39, 24, 81, 63, 99, 49, 29, 87, 98, 7, 26, 71, 19, 20, 36, 72, 66, 70, 51, 76, 53, 74, 44, 59, 52, 1, 95, 55, 86, 31, 100, 33, 84, 45, 62, 10}
+	testProcess(t, numbers)
+}
 
+func TestBetterPrintFiles1(t *testing.T) {
+	// 设置随机数种子
+	rand.Seed(time.Now().UnixNano())
+	// 生成连续的数字序列
+	n := 10000 // 比如生成1到10的数字
+	numbers := make([]int, n)
+	for i := range numbers {
+		numbers[i] = i + 1
+	}
+	// 洗牌
+	rand.Shuffle(10, func(i, j int) {
+		numbers[i], numbers[j] = numbers[j], numbers[i]
+	})
+	testProcess(t, numbers)
 }
 func TestBetterPrintFiles(t *testing.T) {
 	r := NewRingSlice(30)

@@ -359,11 +359,13 @@ func (r *RingSlice) WriteSingleAbs(index int, p int64) (n int, err error) {
 	//	r.isEmpty = false
 	//	return 1, nil
 	//}
-	if index > r.size-2 {
+	len := index - r.w + 1
+	if r.free() <= len-1 {
 		t := r.r
-		r.makeSpaceN(index + 2) //参数是增加的个数
+		r.makeSpace(r.free() - len + 3)
 		index -= t
 	}
+	index = index % r.size
 
 	r.buf[index] = p
 	if r.w < index {
@@ -454,14 +456,15 @@ func (r *RingSlice) String() string {
 }
 
 func (r *RingSlice) makeSpace(len int) {
+	fmt.Printf("make space %d", len)
 	vlen := r.VirtualLength()
 	newSize := r.grow(r.size + len)
 	newBuf := make([]int64, newSize)
 	oldLen := r.Length()
+	r.callback(-r.r)
 	_, _ = r.Read(newBuf)
 
 	r.w = oldLen
-	r.callback(-r.r)
 	r.r = 0
 	r.vr = oldLen - vlen
 	r.size = newSize
