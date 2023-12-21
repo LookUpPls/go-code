@@ -2,11 +2,9 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"runtime"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // PrintList prints the entire linked list starting from the given node.
@@ -15,7 +13,7 @@ func PrintList(head *Node) {
 	sb.WriteString(" | ")
 
 	for current := head; current != nil; current = current.next {
-		sb.WriteString(current.info)
+		sb.WriteString(strconv.Itoa(current.info))
 		if current.next != nil {
 			sb.WriteString(" > ")
 		}
@@ -39,22 +37,20 @@ func bToMb(b uint64) uint64 {
 }
 
 type Node struct {
-	info string
+	info int
 	next *Node
 	prev *Node
 }
 
 // String returns a string representation of the Node.
 func (n *Node) String() string {
-	return fmt.Sprintf("%s", n.info)
+	return fmt.Sprintf("%d", n.info)
 }
 
 type MessageBox struct {
 	headMap   map[int]*Node
 	tailMap   map[int]*Node
 	waitPoint int
-	min       int
-	minNode   *Node
 }
 
 func NewMessageBox() *MessageBox {
@@ -62,20 +58,15 @@ func NewMessageBox() *MessageBox {
 	ans.headMap = make(map[int]*Node)
 	ans.tailMap = make(map[int]*Node)
 	ans.waitPoint = 1
-	ans.min = 2<<32 - 1
 	return ans
 }
 
 // 消息的编号，info消息的内容, 消息一定从1开始
-func (this *MessageBox) put(num int, info string) {
+func (this *MessageBox) put(num int, info int) *Node {
 	if num < 1 {
-		return
+		return nil
 	}
 	cur := &Node{info: info}
-	if num < this.min {
-		this.min = num
-		this.minNode = cur
-	}
 	// num~num
 	// 建立了num~num这个连续区间的头和尾
 	// 查询有没有某个连续区间以num-1结尾
@@ -103,8 +94,11 @@ func (this *MessageBox) put(num int, info string) {
 			temp = prev
 		}
 		if cur.prev != nil {
-			cur.prev.next = temp
+			// cur 删掉
 			temp.prev = cur.prev
+			cur.prev.next = temp
+			//cur.prev = nil
+			//cur.next = nil
 		} else {
 			cur.next = temp
 			temp.prev = cur
@@ -115,36 +109,23 @@ func (this *MessageBox) put(num int, info string) {
 		this.tailMap[num] = cur
 	}
 
-	if false {
-		fmt.Printf("put %d max %s\n", num, this.minNode.next)
-		fmt.Printf("")
-		fmt.Print("head ")
-		for _, node := range this.headMap {
-			PrintList(node)
-		}
-		fmt.Print("\ntail ")
-		for _, node := range this.tailMap {
-			PrintList(node)
-		}
-		fmt.Println()
-		fmt.Println()
+	if num == this.waitPoint {
+		return this.pop()
 	}
-	//if num == this.waitPoint {
-	//	this.pop()
-	//}
+	return nil
 }
 
-func (this *MessageBox) pop() {
-	fmt.Print("\nprint ")
+func (this *MessageBox) pop() *Node {
 	node := this.headMap[this.waitPoint]
 	delete(this.headMap, this.waitPoint)
-	for node != nil {
-		fmt.Print(node.info + " ")
-		node = node.next
+	if node.next != nil {
+		//fmt.Printf("%d ", node.next.info)
+		this.waitPoint = node.next.info + 1
+	} else {
 		this.waitPoint++
 	}
 	delete(this.tailMap, this.waitPoint-1)
-	fmt.Println()
+	return node
 }
 
 func main() {
@@ -156,29 +137,5 @@ func main() {
 	 * 直到1-N全部接收并打印完
 	 * 请设计这种接收并打印的结构
 	 */
-	box := NewMessageBox()
 	// 1....
-	rand.Seed(time.Now().UnixNano())
-	// 生成连续的数字序列
-	n := 700000 // 比如生成1到10的数字
-	numbers := make([]int, n)
-	for i := range numbers {
-		numbers[i] = i + 1
-	}
-	// 洗牌
-	rand.Shuffle(n, func(i, j int) {
-		if rand.Int() > 1000 {
-			numbers[i], numbers[j] = numbers[j], numbers[i]
-		}
-	})
-	//numbers = []int{2, 3, 1, 4, 5, 9, 6, 8, 10, 7, 11}
-
-	PrintMemUsage()
-	for _, number := range numbers {
-		box.put(number, strconv.Itoa(number))
-	}
-	PrintMemUsage()
-	runtime.GC()
-	PrintMemUsage()
-	box.put(1, "1")
 }
